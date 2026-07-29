@@ -1,0 +1,6 @@
+{
+  "name": "Impulsio Templates",
+  "description": "Plataforma SaaS de templates editáveis para Canva, com catálogo profissional, área do cliente, favoritos e painel administrativo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   User as UserIcon, Mail, ShieldCheck, Key, Sparkles, Check, CreditCard,
-  QrCode, Copy, CheckCircle2, Building2, Upload, AlertCircle
+  QrCode, Copy, CheckCircle2, Building2, Upload, Camera, Image, Trash2
 } from 'lucide-react';
 
 export const ClientProfile: React.FC = () => {
@@ -10,17 +10,42 @@ export const ClientProfile: React.FC = () => {
 
   const [name, setName] = useState(currentUser?.name || '');
   const [email, setEmail] = useState(currentUser?.email || '');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState(currentUser?.accessKey || '');
+  const [avatarUrl, setAvatarUrl] = useState(
+    currentUser?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'
+  );
   const [isCopied, setIsCopied] = useState(false);
   const [proofUploaded, setProofUploaded] = useState(false);
 
+  const AVATAR_PRESETS = [
+    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=250',
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=250',
+    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=250',
+    'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=250',
+    'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=250'
+  ];
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('A imagem deve ter no máximo 5MB.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setAvatarUrl(base64);
+        showToast('Nova foto carregada! Clique em "Salvar Alterações" para aplicar no seu perfil.');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    updateUserProfile(name, email);
-    if (password) {
-      showToast('Senha alterada com sucesso!');
-      setPassword('');
-    }
+    updateUserProfile(name, email, avatarUrl, password);
   };
 
   const handleCopyPixKey = () => {
@@ -42,18 +67,102 @@ export const ClientProfile: React.FC = () => {
           Meu Perfil & Formas de Pagamento <ShieldCheck className="w-6 h-6 text-emerald-500" />
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Gerencie seus dados pessoais, plano ativo e a conta oficial para pagamentos via PIX.
+          Gerencie sua foto de perfil, dados pessoais de acesso e a conta de pagamento.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Left Form: Personal Data */}
+        {/* Left Form: Personal Data & Photo Upload */}
         <div className="lg:col-span-2 space-y-8">
           <div className="p-6 md:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
             <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <UserIcon className="w-5 h-5 text-blue-500" /> Dados Cadastrais
+              <UserIcon className="w-5 h-5 text-blue-500" /> Dados Cadastrais e Foto do Cliente
             </h2>
+
+            {/* Profile Picture Uploader Section */}
+            <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 space-y-4">
+              <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                Sua Foto de Perfil
+              </label>
+
+              <div className="flex flex-col sm:flex-row items-center gap-5">
+                <div className="relative group">
+                  <img
+                    src={avatarUrl}
+                    alt={name || 'Foto do Cliente'}
+                    className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-slate-800 shadow-xl"
+                  />
+                  <label
+                    htmlFor="avatar-file-input"
+                    className="absolute bottom-0 right-0 p-2 rounded-full bg-blue-600 text-white shadow-lg cursor-pointer hover:bg-blue-500 transition-transform group-hover:scale-110"
+                    title="Enviar foto do seu dispositivo"
+                  >
+                    <Camera className="w-4 h-4" />
+                  </label>
+                  <input
+                    id="avatar-file-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                </div>
+
+                <div className="flex-1 space-y-2 text-center sm:text-left">
+                  <p className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                    Selecione uma foto do seu dispositivo ou escolha um avatar abaixo:
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-2 pt-1 justify-center sm:justify-start">
+                    <label
+                      htmlFor="avatar-file-input"
+                      className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
+                    >
+                      <Upload className="w-3.5 h-3.5" /> Enviar Foto do PC / Celular
+                    </label>
+
+                    {avatarUrl !== currentUser?.avatarUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setAvatarUrl(currentUser?.avatarUrl || AVATAR_PRESETS[0])}
+                        className="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-300 transition-colors cursor-pointer"
+                      >
+                        Restaurar
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Avatar Presets Grid */}
+              <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+                <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-2">
+                  Ou escolha um dos avatares prontos:
+                </p>
+                <div className="flex items-center gap-3 overflow-x-auto pb-1">
+                  {AVATAR_PRESETS.map((preset, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setAvatarUrl(preset)}
+                      className={`relative w-11 h-11 rounded-full overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
+                        avatarUrl === preset
+                          ? 'border-blue-600 ring-2 ring-blue-500/40 scale-105'
+                          : 'border-slate-300 dark:border-slate-700 opacity-70 hover:opacity-100'
+                      }`}
+                    >
+                      <img src={preset} alt={`Avatar ${idx}`} className="w-full h-full object-cover" />
+                      {avatarUrl === preset && (
+                        <div className="absolute inset-0 bg-blue-600/30 flex items-center justify-center">
+                          <Check className="w-4 h-4 text-white font-bold" />
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
 
             <form onSubmit={handleSave} className="space-y-4">
               <div>
@@ -68,7 +177,7 @@ export const ClientProfile: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">E-mail</label>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">E-mail de Acesso</label>
                 <input
                   type="email"
                   required
@@ -79,21 +188,29 @@ export const ClientProfile: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nova Senha (deixe em branco para manter a atual)</label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full p-3 rounded-xl text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Sua Chave de Acesso (Senha Secreta)
+                </label>
+                <div className="relative">
+                  <Key className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-10 pr-3 py-3 rounded-xl text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Esta é a sua chave pessoal de acesso criada na escolha do plano.
+                </p>
               </div>
 
               <button
                 type="submit"
                 className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md cursor-pointer transition-colors"
               >
-                Salvar Alterações
+                Salvar Alterações e Atualizar Foto
               </button>
             </form>
           </div>
@@ -112,7 +229,7 @@ export const ClientProfile: React.FC = () => {
               </div>
 
               <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                Oficial Impulsio
+                Oficial Impulsion
               </span>
             </div>
 
@@ -210,12 +327,21 @@ export const ClientProfile: React.FC = () => {
               </div>
             </div>
 
-            <div className="pt-6 border-t border-slate-800 space-y-2">
+            <div className="pt-6 border-t border-slate-800 space-y-3">
               <button
                 onClick={() => setCheckoutPlan('Vitalício')}
                 className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-xs font-bold shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all"
               >
                 <Sparkles className="w-4 h-4 text-yellow-300" /> Upgrade para Vitalício
+              </button>
+
+              <button
+                onClick={() => {
+                  showToast(`📧 E-mail de confirmação reenviado para ${currentUser?.email}!`);
+                }}
+                className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all"
+              >
+                <Mail className="w-4 h-4 text-blue-400" /> Reenviar E-mail de Boas-Vindas & Acesso
               </button>
             </div>
           </div>

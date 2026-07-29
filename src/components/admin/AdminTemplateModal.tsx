@@ -36,7 +36,7 @@ export const AdminTemplateModal: React.FC<Props> = ({ isOpen, onClose, editingTe
       setTagsInput('canva, instagram, artes, redes sociais');
       setDescription('');
       setImageUrl('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80');
-      setCanvaUrl('https://www.canva.com/design/DAF1234585/view');
+      setCanvaUrl('https://share.google/wNVaBMf3Y0tsleg7f');
     }
   }, [editingTemplate, categories, isOpen]);
 

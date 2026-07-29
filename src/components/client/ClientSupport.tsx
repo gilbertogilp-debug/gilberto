@@ -97,7 +97,7 @@ export const ClientSupport: React.FC = () => {
             </div>
             <h3 className="text-xl font-bold">Atendimento via WhatsApp</h3>
             <p className="text-xs text-emerald-100 leading-relaxed">
-              Assinantes dos planos Anual e Vitalício possuem acesso direto ao WhatsApp da equipe Impulsio de Segunda a Sábado das 08h às 20h.
+              Assinantes dos planos Anual e Vitalício possuem acesso direto ao WhatsApp da equipe Impulsion de Segunda a Sábado das 08h às 20h.
             </p>
           </div>
 

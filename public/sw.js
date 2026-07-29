@@ -1,5 +1,5 @@
-// Service Worker for Impulsio Templates Android PWA
-const CACHE_NAME = 'impulsio-app-v1';
+// Service Worker for Impulsion Templates Android PWA
+const CACHE_NAME = 'impulsion-app-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

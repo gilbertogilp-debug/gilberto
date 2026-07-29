@@ -11,7 +11,7 @@ export const FaqSection: React.FC = () => {
     },
     {
       q: 'Como recebo o acesso aos templates após assinar?',
-      a: 'O acesso é imediato! Assim que seu pagamento for aprovado (no PIX e Cartão é instantâneo), você faz login na plataforma Impulsio e já pode navegar pelas categorias e abrir os links direto no seu Canva.'
+      a: 'O acesso é imediato! Assim que seu pagamento for aprovado (no PIX e Cartão é instantâneo), você faz login na plataforma Impulsion e já pode navegar pelas categorias e abrir os links direto no seu Canva.'
     },
     {
       q: 'Posso alterar textos, fotos e cores dos modelos?',

@@ -30,6 +30,8 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  phone?: string;
+  accessKey?: string; // Chave de acesso / Senha criada pelo cliente
   avatarUrl: string;
   plan: 'Gratuito' | 'Mensal' | 'Anual' | 'Vitalício';
   role: 'user' | 'admin';
@@ -78,11 +80,14 @@ export interface PaymentTransaction {
   clientName: string;
   clientEmail: string;
   amount: number;
-  gateway: 'Stripe' | 'Mercado Pago' | 'Asaas';
-  status: 'Aprovado' | 'Pendente' | 'Recusado';
+  gateway: 'Stripe' | 'Mercado Pago' | 'Asaas' | 'PagSeguro' | 'Efí Gerencianet';
+  status: 'Aprovado' | 'Pendente' | 'Recusado' | 'Expirado' | 'Cancelado';
   date: string;
   planName: string;
   invoiceUrl: string;
+  cpf?: string;
+  clientPhone?: string;
+  pixPayload?: string;
 }
 
 export interface AffiliateInfo {
@@ -103,6 +108,19 @@ export interface PixConfig {
   instructions: string;
 }
 
+export interface PlanConfig {
+  id: string; // e.g. 'Mensal', 'Anual', 'Vitalício' or custom
+  name: string;
+  price: number; // numeric price, e.g. 29.90
+  period: string; // display string e.g. '/mês' or 'Pague uma única vez'
+  badge?: string; // e.g. 'MAIS POPULAR • ECONOMIZE 33%'
+  description: string;
+  popular: boolean;
+  active: boolean;
+  features: string[];
+  ctaText: string;
+}
+
 export type ViewMode = 'home' | 'client' | 'admin' | 'auth';
-export type ClientTab = 'dashboard' | 'categories' | 'favorites' | 'downloads' | 'profile' | 'support' | 'affiliates';
+export type ClientTab = 'presentation' | 'dashboard' | 'categories' | 'favorites' | 'downloads' | 'profile' | 'support' | 'affiliates';
 export type AdminTab = 'dashboard' | 'clients' | 'templates' | 'categories' | 'subscriptions' | 'payments' | 'reports' | 'coupons' | 'announcements' | 'settings';

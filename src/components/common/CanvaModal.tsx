@@ -1,29 +1,53 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { X, ExternalLink, Heart, Download, Tag, Sparkles, CheckCircle2, ShieldCheck, Layers } from 'lucide-react';
+import { X, ExternalLink, Heart, Download, Tag, Sparkles, CheckCircle2, ShieldCheck, Layers, Lock, CreditCard, ArrowLeft } from 'lucide-react';
 
 export const CanvaModal: React.FC = () => {
-  const { previewTemplate, setPreviewTemplate, isFavorite, toggleFavorite, recordDownload } = useApp();
+  const { previewTemplate, setPreviewTemplate, isFavorite, toggleFavorite, recordDownload, isLoggedIn, setCheckoutPlan, showToast, demoDownloadsCount, viewMode, setViewMode } = useApp();
 
   if (!previewTemplate) return null;
 
   const handleEditOnCanva = () => {
-    recordDownload(previewTemplate);
-    window.open(previewTemplate.canvaUrl, '_blank', 'noopener,noreferrer');
+    const success = recordDownload(previewTemplate);
+    if (success) {
+      window.open(previewTemplate.canvaUrl, '_blank', 'noopener,noreferrer');
+      setPreviewTemplate(null);
+    }
+  };
+
+  const handleClose = () => {
+    setPreviewTemplate(null);
   };
 
   const favorite = isFavorite(previewTemplate.id);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-3xl overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl transition-all">
-        {/* Close button */}
-        <button
-          onClick={() => setPreviewTemplate(null)}
-          className="absolute top-4 right-4 z-10 p-2.5 rounded-full bg-slate-900/60 text-white hover:bg-slate-900/90 transition-colors backdrop-blur-md"
-        >
-          <X className="w-5 h-5" />
-        </button>
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleClose();
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in overflow-y-auto"
+    >
+      <div className="relative w-full max-w-3xl overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl transition-all my-8">
+        
+        {/* Top Navigation Bar with Back Button */}
+        <div className="flex items-center justify-between px-6 py-3.5 bg-slate-100/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700/80">
+          <button
+            onClick={handleClose}
+            className="px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 text-xs font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer border border-slate-200 dark:border-slate-600"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Voltar para Página Anterior</span>
+          </button>
+
+          <button
+            onClick={handleClose}
+            className="p-2 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+            title="Fechar e voltar"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2">
           {/* Image preview area */}
@@ -41,10 +65,19 @@ export const CanvaModal: React.FC = () => {
               {previewTemplate.format}
             </div>
 
-            {/* Downloads count */}
-            <div className="absolute bottom-4 left-4 z-20 flex items-center gap-1.5 text-xs text-slate-300 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-800">
-              <Download className="w-3.5 h-3.5 text-blue-400" />
-              <span>{previewTemplate.downloadsCount} downloads</span>
+            {/* Lock / Unlocked Status Badge */}
+            <div className="absolute bottom-4 left-4 z-20 flex items-center gap-1.5 text-xs font-bold text-white bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-700">
+              {isLoggedIn ? (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-emerald-300">Download Liberado</span>
+                </>
+              ) : (
+                <>
+                  <Lock className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="text-amber-300">Amostra de Demonstração</span>
+                </>
+              )}
             </div>
           </div>
 
@@ -58,7 +91,7 @@ export const CanvaModal: React.FC = () => {
 
                 <button
                   onClick={() => toggleFavorite(previewTemplate.id)}
-                  className={`p-2 rounded-full border transition-colors ${
+                  className={`p-2 rounded-full border transition-colors cursor-pointer ${
                     favorite
                       ? 'bg-rose-500/10 text-rose-500 border-rose-500/30'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-rose-500 border-slate-200 dark:border-slate-700'
@@ -90,41 +123,56 @@ export const CanvaModal: React.FC = () => {
                 ))}
               </div>
 
-              {/* Instructions */}
-              <div className="mt-6 p-4 rounded-2xl bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-800/40 space-y-2">
-                <div className="flex items-center gap-2 text-xs font-bold text-blue-700 dark:text-blue-300">
-                  <Sparkles className="w-4 h-4 text-blue-500" />
-                  <span>Como usar este template:</span>
+              {/* Access Condition Box */}
+              {!isLoggedIn ? (
+                <div className="mt-6 p-4 rounded-2xl bg-blue-500/10 border border-blue-500/30 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-extrabold text-blue-700 dark:text-blue-300">
+                      <Sparkles className="w-4 h-4 text-blue-500" />
+                      <span>Modelo Editável no Canva</span>
+                    </div>
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-600 dark:text-blue-300">
+                      Link Direto
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">
+                    Ao clicar no botão abaixo, a página editável deste modelo será aberta em uma nova aba no Canva para você personalizar.
+                  </p>
                 </div>
-                <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-1 pl-1">
-                  <li className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                    1. Clique em "Editar no Canva" abaixo.
-                  </li>
-                  <li className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                    2. O Canva abrirá e solicitará cópia para sua conta.
-                  </li>
-                  <li className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                    3. Altere imagens, cores e textos livremente.
-                  </li>
-                </ul>
-              </div>
+              ) : (
+                <div className="mt-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    <span>Seu plano está ativo e o download está liberado!</span>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">
+                    Clique no botão abaixo para abrir a cópia editável desta arte diretamente na sua conta do Canva.
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* Primary Action Button */}
-            <div className="pt-2">
+            {/* Primary Action & Return Buttons */}
+            <div className="pt-2 space-y-3">
               <button
                 onClick={handleEditOnCanva}
-                className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold text-base shadow-xl shadow-blue-500/25 flex items-center justify-center gap-3 transform hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
+                className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-base shadow-xl shadow-purple-500/25 flex items-center justify-center gap-3 transform hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
               >
                 <Sparkles className="w-5 h-5 text-yellow-300 animate-pulse" />
-                <span>Editar no Canva</span>
+                <span>Abrir e Editar no Canva</span>
                 <ExternalLink className="w-5 h-5 text-white/80" />
               </button>
+
+              {/* Secondary Return Button */}
+              <button
+                onClick={handleClose}
+                className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer border border-slate-200 dark:border-slate-700"
+              >
+                <ArrowLeft className="w-4 h-4 text-slate-500" />
+                <span>Voltar para a Página Anterior</span>
+              </button>
               
-              <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-2 flex items-center justify-center gap-1">
+              <p className="text-center text-xs text-slate-400 dark:text-slate-500 flex items-center justify-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
                 Funciona em contas do Canva Grátis e Canva Pro
               </p>
@@ -135,3 +183,4 @@ export const CanvaModal: React.FC = () => {
     </div>
   );
 };
+

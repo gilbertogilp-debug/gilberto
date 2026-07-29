@@ -34,7 +34,7 @@ export const AndroidInstallModal: React.FC<{
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
-        showToast('Sucesso! App Impulsio instalado no seu Android 🚀');
+        showToast('Sucesso! App Impulsion instalado no seu Android 🚀');
         setDeferredPrompt(null);
         onClose();
       } else {
@@ -69,7 +69,7 @@ export const AndroidInstallModal: React.FC<{
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-400 text-slate-900 uppercase tracking-wide">
                 Modo Nativo Android
               </span>
-              <h3 className="text-xl font-black mt-1">App Impulsio no Android</h3>
+              <h3 className="text-xl font-black mt-1">App Impulsion no Android</h3>
             </div>
           </div>
           <p className="text-xs text-blue-100 leading-relaxed font-medium">
@@ -84,7 +84,7 @@ export const AndroidInstallModal: React.FC<{
               <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto" />
               <h4 className="font-bold text-emerald-600 dark:text-emerald-400">Você já está rodando no modo App Nativo!</h4>
               <p className="text-xs text-slate-600 dark:text-slate-400">
-                O Impulsio está instalado e sincronizado perfeitamente com seu dispositivo Android.
+                O Impulsion está instalado e sincronizado perfeitamente com seu dispositivo Android.
               </p>
             </div>
           ) : (

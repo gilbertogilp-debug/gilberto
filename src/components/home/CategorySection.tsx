@@ -4,11 +4,18 @@ import { getCategoryIcon } from '../../utils/iconHelper';
 import { Sparkles, ArrowRight } from 'lucide-react';
 
 export const CategorySection: React.FC = () => {
-  const { categories, setSelectedCategory, setViewMode } = useApp();
+  const { categories, setSelectedCategory, setViewMode, isLoggedIn, setClientTab } = useApp();
 
   const handleCategoryClick = (catId: string) => {
     setSelectedCategory(catId);
-    setViewMode('client');
+    if (isLoggedIn) {
+      setViewMode('client');
+      setClientTab('categories');
+    } else {
+      setViewMode('home');
+      const el = document.getElementById('recentes');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -57,7 +64,14 @@ export const CategorySection: React.FC = () => {
           <button
             onClick={() => {
               setSelectedCategory('all');
-              setViewMode('client');
+              if (isLoggedIn) {
+                setViewMode('client');
+                setClientTab('categories');
+              } else {
+                setViewMode('home');
+                const el = document.getElementById('recentes');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }
             }}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-sm shadow-md transition-all cursor-pointer"
           >

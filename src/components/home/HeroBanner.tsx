@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { Sparkles, ArrowRight, Play, CheckCircle2, Layers, Download, Star, Flame } from 'lucide-react';
+import { Sparkles, ArrowRight, Play, CheckCircle2, Star, Flame } from 'lucide-react';
 
 export const HeroBanner: React.FC = () => {
   const { setCheckoutPlan, setIsDemoModalOpen, templates, setPreviewTemplate } = useApp();
@@ -36,6 +36,7 @@ export const HeroBanner: React.FC = () => {
             <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
               Economize tempo criando posts profissionais em poucos minutos. Aumente o engajamento do seu negócio com artes em formato Feed, Story, Reels e Carrossel.
             </p>
+
 
             {/* Action Buttons */}
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">

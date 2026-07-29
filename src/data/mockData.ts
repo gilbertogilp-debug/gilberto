@@ -1,4 +1,62 @@
-import { Category, Template, User, Coupon, Announcement, Subscriber, PaymentTransaction, AffiliateInfo } from '../types';
+import { Category, Template, User, Coupon, Announcement, Subscriber, PaymentTransaction, AffiliateInfo, PlanConfig } from '../types';
+
+export const DEFAULT_PLANS: PlanConfig[] = [
+  {
+    id: 'Mensal',
+    name: 'Plano Mensal',
+    price: 29.90,
+    period: '/mês',
+    description: 'Ideal para testar a plataforma e criar artes rapidamente.',
+    popular: false,
+    active: true,
+    features: [
+      'Acesso a todos os +1.400 templates',
+      'Todos os formatos (Feed, Story, Reels, Carrossel)',
+      'Links diretos para edição no Canva',
+      'Novos templates semanalmente',
+      'Suporte prioritário via WhatsApp'
+    ],
+    ctaText: 'Assinar Plano Mensal'
+  },
+  {
+    id: 'Anual',
+    name: 'Plano Anual',
+    price: 19.90,
+    period: '/mês (R$ 238,80/ano)',
+    badge: 'MAIS POPULAR • ECONOMIZE 33%',
+    description: 'O melhor custo-benefício para empreendedores e criadores.',
+    popular: true,
+    active: true,
+    features: [
+      'TUDO do Plano Mensal',
+      '33% de Desconto em relação ao mensal',
+      'Acesso VIP antecipado a novos pacotes',
+      'Garantia incondicional de 7 dias',
+      'Bônus: Guia de Cores e Tipografias para Canva',
+      'Suporte VIP 24/7'
+    ],
+    ctaText: 'Garantir Desconto Anual'
+  },
+  {
+    id: 'Vitalício',
+    name: 'Plano Vitalício',
+    price: 397.00,
+    period: 'Pague uma única vez',
+    badge: 'ACESSO PRA SEMPRE',
+    description: 'Acesso perpétuo sem mensalidades nem anuidades.',
+    popular: false,
+    active: true,
+    features: [
+      'Acesso PERPÉTUO a toda a biblioteca',
+      'Todas as futuras atualizações incluídas para sempre',
+      'Download ilimitado de qualquer template',
+      'Área de Afiliados exclusiva com 30% de comissão',
+      'Grupo VIP de Networking',
+      'Suporte Dedicado'
+    ],
+    ctaText: 'Garantir Acesso Vitalício'
+  }
+];
 
 export const INITIAL_CATEGORIES: Category[] = [
   { id: 'cat-alimentacao', name: 'Alimentação', iconName: 'Utensils', color: 'bg-amber-500/10 text-amber-500 border-amber-500/20', description: 'Restaurantes, lanchonetes, delivery e hamburguerias', templateCount: 142 },
@@ -31,7 +89,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['hamburguer', 'artesanal', 'combo', 'delivery', 'promoção'],
     description: 'Template vibrante e moderno para hamburguerias destacarem o combo especial com foto suculenta e call-to-action.',
     imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234567/view?utm_content=DAF1234567&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 1240,
     isNew: true,
     isTrending: true,
@@ -47,7 +105,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['barbearia', 'corte', 'barba', 'agendamento', 'estilo'],
     description: 'Design escuro e sofisticado com estilo vintage/moderno para divulgação de horários e tabela de preços em barbearias.',
     imageUrl: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234568/view?utm_content=DAF1234568&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 980,
     isNew: false,
     isTrending: true,
@@ -63,7 +121,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['salao', 'cabelo', 'dicas', 'carrossel', 'beleza'],
     description: 'Carrossel educativo em 5 etapas para aumentar engajamento de salões de beleza e profissionais da estética.',
     imageUrl: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234569/view?utm_content=DAF1234569&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 1850,
     isNew: true,
     isTrending: true,
@@ -79,7 +137,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['clinica', 'medico', 'saude', 'atendimento', 'reels'],
     description: 'Template em vídeo vertical com animações limpas e typography profissional para médicos e especialistas.',
     imageUrl: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234570/view?utm_content=DAF1234570&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 720,
     isNew: false,
     isTrending: false,
@@ -95,7 +153,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['academia', 'treino', 'fitness', 'motivação', 'suplementos'],
     description: 'Post de alta energia com contraste vibrante para academias e personal trainers motivarem seus alunos.',
     imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234571/view?utm_content=DAF1234571&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 1430,
     isNew: true,
     isTrending: true,
@@ -111,7 +169,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['moda', 'loja', 'lookbook', 'colecao', 'feminino'],
     description: 'Layout minimalista e elegante para boutique de roupas apresentar looks em carrossel e vender no Instagram.',
     imageUrl: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234572/view?utm_content=DAF1234572&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 2100,
     isNew: false,
     isTrending: true,
@@ -127,7 +185,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['imobiliaria', 'imovel', 'apartamento', 'corretor', 'luxo'],
     description: 'Design premium para corretores e imobiliárias apresentarem plantas, localização e valores de empreendimentos.',
     imageUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234573/view?utm_content=DAF1234573&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 890,
     isNew: false,
     isTrending: false,
@@ -143,7 +201,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['blackfriday', 'oferta', 'desconto', 'escassez', 'stories'],
     description: 'Banner impactante com amarelo e preto, efeitos neon e gatilhos de urgência para estourar de vender na Black Friday.',
     imageUrl: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234574/view?utm_content=DAF1234574&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 3450,
     isNew: true,
     isTrending: true,
@@ -159,7 +217,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['petshop', 'dog', 'banhoetosa', 'cuidados', 'fofo'],
     description: 'Post fofo e atrativo para petshops destacarem serviços de estática animal, vacinação e acessórios.',
     imageUrl: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234575/view?utm_content=DAF1234575&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 670,
     isNew: false,
     isTrending: false,
@@ -175,7 +233,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['igreja', 'culto', 'louvor', 'evangelho', 'familia'],
     description: 'Arte sacra moderna para comunicação de cultos de domingo, conferências de jovens e grupos de oração.',
     imageUrl: 'https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234576/view?utm_content=DAF1234576&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 1120,
     isNew: true,
     isTrending: false,
@@ -191,7 +249,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['carros', 'seminovos', 'veiculos', 'oficina', 'vendas'],
     description: 'Vídeo dinâmico para loja de veículos mostrar detalhes do carro, quilometragem e condições de financiamento.',
     imageUrl: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234577/view?utm_content=DAF1234577&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 810,
     isNew: false,
     isTrending: false,
@@ -207,7 +265,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['supermercado', 'encarte', 'ofertas', 'hortifruti', 'desconto'],
     description: 'Encarte completo estilo tabloide para divulgação de produtos da semana com tags de preço organizadas.',
     imageUrl: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234578/view?utm_content=DAF1234578&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 1620,
     isNew: true,
     isTrending: true,
@@ -223,7 +281,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['diasmaes', 'mae', 'presente', 'amor', 'homenagem'],
     description: 'Design delicado e emocionante com tons florais e dourados para homenagens e vendas de kits de Dia das Mães.',
     imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234579/view?utm_content=DAF1234579&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 2240,
     isNew: false,
     isTrending: true,
@@ -239,7 +297,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['diaspais', 'pai', 'kitmasculino', 'presentes', 'story'],
     description: 'Layout elegante e marcante para divulgação de produtos e homenagens de Dia dos Pais.',
     imageUrl: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234580/view?utm_content=DAF1234580&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 1540,
     isNew: false,
     isTrending: false,
@@ -255,7 +313,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['natal', 'boasfestas', 'fimdeano', 'presentes', 'ceia'],
     description: 'Arte natalina em vermelho e dourado com luzes cintilantes para saudações e vendas de fim de ano.',
     imageUrl: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234581/view?utm_content=DAF1234581&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 2890,
     isNew: false,
     isTrending: true,
@@ -271,7 +329,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['agro', 'fazenda', 'insumos', 'campo', 'colheita'],
     description: 'Post corporativo para empresas do agronegócio divulgarem sementes, maquinários e tecnologia do campo.',
     imageUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234582/view?utm_content=DAF1234582&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 510,
     isNew: false,
     isTrending: false,
@@ -287,7 +345,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['farmacia', 'remedios', 'drogaria', 'saude', 'desconto'],
     description: 'Layout profissional com verde e azul para encartes de medicamentos, higiene e perfumaria.',
     imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234583/view?utm_content=DAF1234583&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 630,
     isNew: false,
     isTrending: false,
@@ -303,7 +361,7 @@ export const INITIAL_TEMPLATES: Template[] = [
     tags: ['calendario', 'planejamento', 'datas', 'engajamento'],
     description: 'Calendário editorial interativo para redes sociais organizarem postagens e avisos.',
     imageUrl: 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=800&q=80',
-    canvaUrl: 'https://www.canva.com/design/DAF1234584/view?utm_content=DAF1234584&utm_campaign=designshare&utm_medium=link&utm_source=publishsharelink',
+    canvaUrl: 'https://share.google/wNVaBMf3Y0tsleg7f',
     downloadsCount: 1390,
     isNew: true,
     isTrending: true,
@@ -332,8 +390,8 @@ export const MOCK_USER: User = {
 
 export const MOCK_ADMIN: User = {
   id: 'usr-admin',
-  name: 'Administrador Impulsio',
-  email: 'admin@impulsio.com.br',
+  name: 'Administrador Impulsion',
+  email: 'admin@impulsion.com.br',
   avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
   plan: 'Vitalício',
   role: 'admin',
@@ -344,7 +402,7 @@ export const MOCK_ADMIN: User = {
 };
 
 export const MOCK_COUPONS: Coupon[] = [
-  { id: 'coup-1', code: 'IMPULSIO10', discountPercent: 10, expiresAt: '2026-12-31', usageCount: 142, maxUsage: 500, active: true },
+  { id: 'coup-1', code: 'IMPULSION10', discountPercent: 10, expiresAt: '2026-12-31', usageCount: 142, maxUsage: 500, active: true },
   { id: 'coup-2', code: 'BLACK30', discountPercent: 30, expiresAt: '2026-11-30', usageCount: 88, maxUsage: 200, active: true },
   { id: 'coup-3', code: 'LANCAMENTO50', discountPercent: 50, expiresAt: '2026-08-15', usageCount: 50, maxUsage: 50, active: false }
 ];
@@ -376,5 +434,5 @@ export const MOCK_AFFILIATE: AffiliateInfo = {
   pendingPayout: 380.00,
   totalReferrals: 18,
   conversionRate: 14.2,
-  referralLink: 'https://impulsio.com.br/ref/LUCASSILVA30'
+  referralLink: 'https://impulsion.com.br/ref/LUCASSILVA30'
 };

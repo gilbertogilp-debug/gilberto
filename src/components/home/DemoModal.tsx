@@ -1,40 +1,67 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { X, Play, Sparkles, Layers, ArrowRight, Search } from 'lucide-react';
+import { X, Play, Sparkles, Layers, ArrowRight, Search, ArrowLeft } from 'lucide-react';
 
 export const DemoModal: React.FC = () => {
-  const { isDemoModalOpen, setIsDemoModalOpen, templates, setPreviewTemplate, setCheckoutPlan } = useApp();
+  const { isDemoModalOpen, setIsDemoModalOpen, templates, setPreviewTemplate, setCheckoutPlan, demoDownloadsCount, isLoggedIn, viewMode, setViewMode } = useApp();
   const [filter, setFilter] = useState('todos');
 
   if (!isDemoModalOpen) return null;
+
+  const handleClose = () => {
+    setIsDemoModalOpen(false);
+  };
 
   const demoList = filter === 'todos'
     ? templates.slice(0, 6)
     : templates.filter((t) => t.format.toLowerCase() === filter.toLowerCase()).slice(0, 6);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col justify-between p-6 md:p-8">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleClose();
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in overflow-y-auto"
+    >
+      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col justify-between p-6 md:p-8 my-auto">
         
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
-              <Play className="w-5 h-5 fill-purple-600 dark:fill-purple-400" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                Demonstração Interativa do Catálogo
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Experimente como funciona a busca e o redirecionamento instantâneo para o Canva.
-              </p>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleClose}
+              className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-blue-600 hover:text-white text-xs font-bold flex items-center gap-2 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Voltar</span>
+            </button>
+
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                <Play className="w-5 h-5 fill-purple-600 dark:fill-purple-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                    Demonstração Interativa do Catálogo
+                  </h2>
+                  {!isLoggedIn && (
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30">
+                      Demonstração: {demoDownloadsCount}/3 Artes
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Experimente como funciona a busca e o teste de edição de até 3 artes no Canva.
+                </p>
+              </div>
             </div>
           </div>
 
           <button
-            onClick={() => setIsDemoModalOpen(false)}
-            className="p-2 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+            onClick={handleClose}
+            className="p-2 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+            title="Fechar"
           >
             <X className="w-5 h-5" />
           </button>
@@ -46,7 +73,7 @@ export const DemoModal: React.FC = () => {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold capitalize transition-colors ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold capitalize transition-colors cursor-pointer ${
                 filter === f
                   ? 'bg-blue-600 text-white'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
@@ -92,15 +119,20 @@ export const DemoModal: React.FC = () => {
 
         {/* Footer CTA */}
         <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Gostou da demonstração? Assine e libere acesso a +1.480 modelos!
-          </p>
+          <button
+            onClick={handleClose}
+            className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Voltar para Página Anterior</span>
+          </button>
+
           <button
             onClick={() => {
               setIsDemoModalOpen(false);
               setCheckoutPlan('Anual');
             }}
-            className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-xs shadow-lg flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-xs shadow-lg flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>Liberar Acesso Completo</span>
             <ArrowRight className="w-4 h-4" />
@@ -111,3 +143,4 @@ export const DemoModal: React.FC = () => {
     </div>
   );
 };
+

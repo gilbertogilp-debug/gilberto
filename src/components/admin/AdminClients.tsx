@@ -4,11 +4,11 @@ import { Subscriber } from '../../types';
 import {
   Users, Search, UserPlus, Trash2, ShieldCheck, XCircle,
   CheckCircle2, AlertCircle, Filter, DollarSign, Calendar,
-  CreditCard, QrCode, Mail, User, X
+  CreditCard, QrCode, Mail, User, X, Send, Sparkles, FileText
 } from 'lucide-react';
 
 export const AdminClients: React.FC = () => {
-  const { subscribers, deleteSubscriber, addSubscriber, updateSubscriberStatus } = useApp();
+  const { subscribers, deleteSubscriber, addSubscriber, updateSubscriberStatus, showToast } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'Todos' | 'Ativo' | 'Inativo' | 'Pendente'>('Todos');
@@ -17,6 +17,14 @@ export const AdminClients: React.FC = () => {
   // Modal States
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [subscriberToDelete, setSubscriberToDelete] = useState<Subscriber | null>(null);
+  const [subscriberToEmail, setSubscriberToEmail] = useState<Subscriber | null>(null);
+
+  // Email Compose State
+  const [emailTemplateType, setEmailTemplateType] = useState<'welcome' | 'renewal' | 'support' | 'custom'>('welcome');
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailBody, setEmailBody] = useState('');
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [emailSentSuccess, setEmailSentSuccess] = useState(false);
 
   // New Client Form State
   const [newName, setNewName] = useState('');
@@ -44,6 +52,44 @@ export const AdminClients: React.FC = () => {
     .filter((s) => s.status === 'Ativo')
     .reduce((acc, s) => acc + (s.amount || 29.9), 0);
 
+  const handleOpenEmailModal = (subscriber: Subscriber) => {
+    setSubscriberToEmail(subscriber);
+    setEmailSentSuccess(false);
+    setEmailTemplateType('welcome');
+    setEmailSubject(`[CONFIRMAÇÃO DE CADASTRO] Seja bem-vindo(a) ao Impulsion Design, ${subscriber.name}!`);
+    setEmailBody(`Olá, ${subscriber.name}!\n\nSeu cadastro no plano ${subscriber.plan} foi confirmado com sucesso!\n\nSeus dados de acesso:\nE-mail: ${subscriber.email}\nStatus da Conta: ${subscriber.status}\nData de Renovação: ${subscriber.renewalDate}\n\nVocê já tem acesso liberado a todos os nossos templates e recursos.\n\nAtenciosamente,\nEquipe Impulsion Design`);
+  };
+
+  const handleTemplateSelect = (type: 'welcome' | 'renewal' | 'support' | 'custom', subscriber: Subscriber) => {
+    setEmailTemplateType(type);
+    setEmailSentSuccess(false);
+    if (type === 'welcome') {
+      setEmailSubject(`[CONFIRMAÇÃO DE CADASTRO] Seja bem-vindo(a) ao Impulsion Design, ${subscriber.name}!`);
+      setEmailBody(`Olá, ${subscriber.name}!\n\nSeu cadastro no plano ${subscriber.plan} foi confirmado com sucesso!\n\nSeus dados de acesso:\nE-mail: ${subscriber.email}\nStatus da Conta: ${subscriber.status}\nData de Renovação: ${subscriber.renewalDate}\n\nVocê já tem acesso liberado a todos os nossos templates e recursos.\n\nAtenciosamente,\nEquipe Impulsion Design`);
+    } else if (type === 'renewal') {
+      setEmailSubject(`[LEMBRETE DE RENOVAÇÃO] Seu Plano ${subscriber.plan} no Impulsion`);
+      setEmailBody(`Olá, ${subscriber.name}!\n\nLembramos que a renovação da sua assinatura do plano ${subscriber.plan} está agendada para ${subscriber.renewalDate}.\n\nPara alterar a forma de pagamento ou consultar suas faturas, acesse o painel no site.\n\nAtenciosamente,\nEquipe Impulsion Design`);
+    } else if (type === 'support') {
+      setEmailSubject(`[ATENDIMENTO VIP] Notificação do Suporte Impulsion Design`);
+      setEmailBody(`Olá, ${subscriber.name}!\n\nSua solicitação de suporte foi processada pela nossa equipe. Se precisar de assistência técnica adicional para editar seus modelos no Canva ou Photoshop, basta nos responder.\n\nAtenciosamente,\nSuporte Técnico Impulsion`);
+    } else {
+      setEmailSubject(`Informativo Especial para ${subscriber.name}`);
+      setEmailBody(`Olá, ${subscriber.name}!\n\nEscreva sua mensagem personalizada para este cliente aqui...`);
+    }
+  };
+
+  const handleSendEmailSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!subscriberToEmail || !emailSubject || !emailBody) return;
+
+    setIsSendingEmail(true);
+    setTimeout(() => {
+      setIsSendingEmail(false);
+      setEmailSentSuccess(true);
+      showToast(`📧 E-mail enviado com sucesso para ${subscriberToEmail.email}!`);
+    }, 1200);
+  };
+
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName || !newEmail) return;
@@ -62,6 +108,8 @@ export const AdminClients: React.FC = () => {
       startDate: today,
       renewalDate: newPlan === 'Vitalício' ? 'Acesso Perpétuo' : renewal
     });
+
+    showToast(`🎉 Cliente cadastrado e e-mail de confirmação enviado para ${newEmail}!`);
 
     // Reset Form
     setNewName('');
@@ -183,7 +231,7 @@ export const AdminClients: React.FC = () => {
                 <th className="py-3.5 px-4">Início</th>
                 <th className="py-3.5 px-4">Renovação</th>
                 <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-4 text-right">Ações (Excluir / Editar)</th>
+                <th className="py-3.5 px-4 text-right">Ações (Enviar E-mail / Excluir)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
@@ -253,16 +301,27 @@ export const AdminClients: React.FC = () => {
                       </select>
                     </td>
 
-                    {/* Actions: Delete Button */}
+                    {/* Actions: Send Email & Delete Buttons */}
                     <td className="py-3.5 px-4 text-right">
-                      <button
-                        onClick={() => setSubscriberToDelete(s)}
-                        className="px-2.5 py-1.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 hover:bg-rose-500/20 text-xs font-bold transition-all flex items-center gap-1.5 ml-auto cursor-pointer"
-                        title="Excluir / Remover Cliente da Base"
-                      >
-                        <Trash2 className="w-3.5 h-3.5 text-rose-500" />
-                        <span>Excluir</span>
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleOpenEmailModal(s)}
+                          className="px-2.5 py-1.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                          title="Enviar E-mail para este cliente"
+                        >
+                          <Mail className="w-3.5 h-3.5 text-blue-500" />
+                          <span>Enviar E-mail</span>
+                        </button>
+
+                        <button
+                          onClick={() => setSubscriberToDelete(s)}
+                          className="px-2.5 py-1.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 hover:bg-rose-500/20 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                          title="Excluir / Remover Cliente da Base"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                          <span>Excluir</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -425,6 +484,182 @@ export const AdminClients: React.FC = () => {
                 Sim, Excluir Cliente
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Enviar Mensagem / E-mail ao Cliente */}
+      {subscriberToEmail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in overflow-y-auto">
+          <div className="relative w-full max-w-2xl p-6 md:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-6 my-8">
+            <button
+              onClick={() => setSubscriberToEmail(null)}
+              className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-800 cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div>
+              <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold text-xs uppercase tracking-wider mb-1">
+                <Mail className="w-4 h-4" /> Despacho de E-mail Direto
+              </div>
+              <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                Enviar E-mail para {subscriberToEmail.name}
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Destinatário: <strong className="text-slate-900 dark:text-white font-mono">{subscriberToEmail.email}</strong> • Plano: <span className="text-purple-500 font-bold">{subscriberToEmail.plan}</span>
+              </p>
+            </div>
+
+            {emailSentSuccess ? (
+              <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-4 animate-fade-in">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/30">
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                    E-mail Despachado com Sucesso!
+                  </h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 max-w-md mx-auto mt-1 leading-relaxed">
+                    A mensagem foi enviada para o endereço <strong className="font-mono">{subscriberToEmail.email}</strong>. Uma cópia foi salva no histórico de comunicações.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-left space-y-2 text-xs font-mono">
+                  <p><strong className="text-slate-900 dark:text-white">Assunto:</strong> {emailSubject}</p>
+                  <p className="whitespace-pre-line text-slate-600 dark:text-slate-400 font-sans text-[11px] pt-1 border-t border-slate-100 dark:border-slate-800">
+                    {emailBody}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setSubscriberToEmail(null)}
+                  className="w-full py-3 rounded-xl bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white font-bold text-xs shadow-md cursor-pointer transition-colors"
+                >
+                  Fechar Modal
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSendEmailSubmit} className="space-y-5">
+                {/* Quick Templates Buttons */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
+                    Modelos Rápidos de E-mail
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleTemplateSelect('welcome', subscriberToEmail)}
+                      className={`p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer ${
+                        emailTemplateType === 'welcome'
+                          ? 'bg-purple-500/10 border-purple-500 text-purple-600 dark:text-purple-400 font-bold'
+                          : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                      }`}
+                    >
+                      🎉 Confirmação & Boas-Vindas
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleTemplateSelect('renewal', subscriberToEmail)}
+                      className={`p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer ${
+                        emailTemplateType === 'renewal'
+                          ? 'bg-purple-500/10 border-purple-500 text-purple-600 dark:text-purple-400 font-bold'
+                          : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                      }`}
+                    >
+                      💳 Aviso de Renovação
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleTemplateSelect('support', subscriberToEmail)}
+                      className={`p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer ${
+                        emailTemplateType === 'support'
+                          ? 'bg-purple-500/10 border-purple-500 text-purple-600 dark:text-purple-400 font-bold'
+                          : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                      }`}
+                    >
+                      🎧 Suporte VIP
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleTemplateSelect('custom', subscriberToEmail)}
+                      className={`p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer ${
+                        emailTemplateType === 'custom'
+                          ? 'bg-purple-500/10 border-purple-500 text-purple-600 dark:text-purple-400 font-bold'
+                          : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                      }`}
+                    >
+                      ✍️ Personalizado
+                    </button>
+                  </div>
+                </div>
+
+                {/* Subject Field */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Assunto do E-mail
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={emailSubject}
+                    onChange={(e) => setEmailSubject(e.target.value)}
+                    className="w-full p-3 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                  />
+                </div>
+
+                {/* Body Message Field */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Conteúdo do E-mail
+                  </label>
+                  <textarea
+                    rows={6}
+                    required
+                    value={emailBody}
+                    onChange={(e) => setEmailBody(e.target.value)}
+                    className="w-full p-3 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:outline-none leading-relaxed"
+                  />
+                </div>
+
+                {/* Live Card Preview */}
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 space-y-2 text-left font-mono text-[11px]">
+                  <p className="font-sans font-bold text-slate-400 uppercase text-[10px] tracking-wider mb-1 flex items-center gap-1">
+                    <FileText className="w-3.5 h-3.5" /> PRÉ-VISUALIZAÇÃO DA CAIXA DE ENTRADA
+                  </p>
+                  <p><strong className="text-slate-900 dark:text-white">De:</strong> Impulsion VIP &lt;boasvindas@impulsion.com.br&gt;</p>
+                  <p><strong className="text-slate-900 dark:text-white">Para:</strong> {subscriberToEmail.name} &lt;{subscriberToEmail.email}&gt;</p>
+                  <p><strong className="text-slate-900 dark:text-white">Assunto:</strong> {emailSubject}</p>
+                </div>
+
+                <div className="pt-2 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setSubscriberToEmail(null)}
+                    className="px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSendingEmail}
+                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-500/20 flex items-center gap-2 cursor-pointer transition-all disabled:opacity-50"
+                  >
+                    {isSendingEmail ? (
+                      <>
+                        <Sparkles className="w-4 h-4 animate-spin text-yellow-300" />
+                        <span>Enviando E-mail...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        <span>Enviar E-mail Agora</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

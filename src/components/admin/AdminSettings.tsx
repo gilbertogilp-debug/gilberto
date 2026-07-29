@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Settings, Save, Lock, QrCode, Building2, CheckCircle2 } from 'lucide-react';
+import { AdminPlanSettings } from './AdminPlanSettings';
+import { Settings, Save, Lock, QrCode, Building2, CheckCircle2, CreditCard } from 'lucide-react';
 
 export const AdminSettings: React.FC = () => {
   const { showToast, pixConfig, updatePixConfig } = useApp();
-  const [appName, setAppName] = useState('Impulsio Templates');
-  const [supportEmail, setSupportEmail] = useState('suporte@impulsio.com.br');
+  const [appName, setAppName] = useState('Impulsion Templates');
+  const [supportEmail, setSupportEmail] = useState('suporte@impulsion.com.br');
   const [stripeKey, setStripeKey] = useState('sk_live_51M...X98A');
   const [mercadoPagoKey, setMercadoPagoKey] = useState('APP_USR-8923...102');
   const [asaasKey, setAsaasKey] = useState('$aact_Y3...990');
@@ -203,6 +204,11 @@ export const AdminSettings: React.FC = () => {
           <Save className="w-5 h-5" /> Salvar Todas as Configurações
         </button>
       </form>
+
+      {/* Plan Settings Editor */}
+      <div className="pt-8 border-t border-slate-200 dark:border-slate-800">
+        <AdminPlanSettings />
+      </div>
     </div>
   );
 };

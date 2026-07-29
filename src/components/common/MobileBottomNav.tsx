@@ -3,7 +3,7 @@ import { useApp } from '../../context/AppContext';
 import {
   Home, Folder, Heart, Download, User, LayoutDashboard,
   Search, Menu, X, Smartphone, ShieldAlert, Sparkles, LogOut,
-  Sun, Moon, Share2, HelpCircle, ChevronRight
+  Sun, Moon, Share2, HelpCircle, ChevronRight, Wrench
 } from 'lucide-react';
 import { ClientTab, AdminTab } from '../../types';
 
@@ -14,6 +14,7 @@ export const MobileBottomNav: React.FC<{
     viewMode, setViewMode,
     clientTab, setClientTab,
     adminTab, setAdminTab,
+    enterAdminMode, setIsSideToolbarOpen,
     isLoggedIn, currentUser, logout,
     setIsAuthModalOpen, setIsQuickSearchOpen,
     isDarkMode, toggleDarkMode
@@ -51,8 +52,14 @@ export const MobileBottomNav: React.FC<{
               {/* User Profile Card */}
               {isLoggedIn ? (
                 <div className="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700/80 mb-6 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 text-white font-black flex items-center justify-center text-sm shadow-md">
-                    {currentUser?.name?.charAt(0) || 'U'}
+                  <div className="w-10 h-10 rounded-full overflow-hidden border border-blue-400/40 shadow-md flex items-center justify-center shrink-0">
+                    {currentUser?.avatarUrl ? (
+                      <img src={currentUser.avatarUrl} alt={currentUser.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="w-full h-full bg-gradient-to-tr from-blue-500 to-indigo-600 text-white font-black flex items-center justify-center text-sm">
+                        {currentUser?.name?.charAt(0) || 'U'}
+                      </span>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold truncate text-white">{currentUser?.name}</p>
@@ -107,6 +114,39 @@ export const MobileBottomNav: React.FC<{
                   </div>
                   <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
                 </button>
+
+                {/* Admin Direct Mobile Editing Shortcut */}
+                {currentUser?.role === 'admin' && (
+                  <>
+                    <button
+                      onClick={() => {
+                        setIsMobileDrawerOpen(false);
+                        enterAdminMode('dashboard');
+                      }}
+                      className="w-full flex items-center justify-between p-3 rounded-xl text-xs font-black bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-600/30 cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Smartphone className="w-4 h-4 text-emerald-300" />
+                        <span>Editar no Celular (Admin)</span>
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-white/70" />
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsMobileDrawerOpen(false);
+                        setIsSideToolbarOpen(true);
+                      }}
+                      className="w-full flex items-center justify-between p-3 rounded-xl text-xs font-bold bg-purple-950/40 text-purple-300 border border-purple-500/30 hover:bg-purple-900/40 cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Wrench className="w-4 h-4 text-purple-400" />
+                        <span>Barra de Ferramentas Admin</span>
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-purple-400" />
+                    </button>
+                  </>
+                )}
 
                 {currentUser?.role === 'admin' && (
                   <button

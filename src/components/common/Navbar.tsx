@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   Sparkles, Search, Sun, Moon, Bell, User, LayoutDashboard,
-  ShieldAlert, Menu, X, ArrowRight, LogOut, CheckCircle2, Smartphone
+  ShieldAlert, Menu, X, ArrowRight, LogOut, CheckCircle2, Smartphone, Wrench
 } from 'lucide-react';
 
 export const Navbar: React.FC<{
@@ -11,10 +11,13 @@ export const Navbar: React.FC<{
   const {
     viewMode,
     setViewMode,
+    setClientTab,
     isDarkMode,
     toggleDarkMode,
     currentUser,
     switchRole,
+    enterAdminMode,
+    setIsSideToolbarOpen,
     logout,
     setIsQuickSearchOpen,
     setIsNotificationDrawerOpen,
@@ -55,7 +58,7 @@ export const Navbar: React.FC<{
           </div>
           <div>
             <span className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
-              Impulsio <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Templates</span>
+              Impulsion <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Templates</span>
             </span>
             <p className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase -mt-1">
               BIBLIOTECA CANVA PRO
@@ -105,6 +108,18 @@ export const Navbar: React.FC<{
             >
               <Smartphone className="w-3.5 h-3.5 text-emerald-500" />
               <span>App Android</span>
+            </button>
+          )}
+
+          {/* Side Toolbar Drawer Trigger (Visible for Admin) */}
+          {(currentUser?.role === 'admin' || viewMode === 'admin') && (
+            <button
+              onClick={() => setIsSideToolbarOpen(true)}
+              className="px-3 py-2 rounded-xl bg-purple-600/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 hover:bg-purple-600/20 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+              title="Abrir Barra de Ferramentas com todas as funções do site"
+            >
+              <Wrench className="w-3.5 h-3.5 text-purple-500" />
+              <span>Ferramentas Admin</span>
             </button>
           )}
 
@@ -164,13 +179,21 @@ export const Navbar: React.FC<{
                 )}
               </button>
 
-              {/* Go to Dashboard button */}
+              {/* Go to Dashboard button with avatar */}
               <button
-                onClick={() => setViewMode(currentUser.role === 'admin' ? 'admin' : 'client')}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-500/20 flex items-center gap-2 transition-all cursor-pointer"
+                onClick={() => {
+                  setViewMode(currentUser.role === 'admin' ? 'admin' : 'client');
+                  if (currentUser.role === 'client') setClientTab('profile');
+                }}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-500/20 flex items-center gap-2 transition-all cursor-pointer"
+                title="Acessar Perfil & Dashboard"
               >
-                <LayoutDashboard className="w-3.5 h-3.5" />
-                <span>Dashboard</span>
+                {currentUser.avatarUrl ? (
+                  <img src={currentUser.avatarUrl} alt={currentUser.name} className="w-6 h-6 rounded-full object-cover border border-white/40" />
+                ) : (
+                  <LayoutDashboard className="w-3.5 h-3.5" />
+                )}
+                <span>{currentUser.name.split(' ')[0]}</span>
               </button>
             </div>
           ) : (
@@ -253,6 +276,30 @@ export const Navbar: React.FC<{
           </div>
 
           <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
+            {currentUser?.role === 'admin' && (
+              <>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    enterAdminMode('dashboard');
+                  }}
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-extrabold text-xs shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Smartphone className="w-4 h-4 text-emerald-300" /> Editar com Celular (Admin)
+                </button>
+
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setIsSideToolbarOpen(true);
+                  }}
+                  className="w-full py-2.5 px-4 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold text-xs border border-purple-500/20 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Wrench className="w-4 h-4" /> Barra de Ferramentas
+                </button>
+              </>
+            )}
+
             {onOpenAndroidInstall && (
               <button
                 onClick={() => {
@@ -305,7 +352,7 @@ export const Navbar: React.FC<{
                     setAuthModalMode('login');
                     setIsAuthModalOpen(true);
                   }}
-                  className="flex-1 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-bold text-xs"
+                  className="flex-1 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-bold text-xs cursor-pointer"
                 >
                   Login
                 </button>
@@ -314,7 +361,7 @@ export const Navbar: React.FC<{
                     setMobileMenuOpen(false);
                     setCheckoutPlan('Anual');
                   }}
-                  className="flex-1 py-3 rounded-xl bg-blue-600 text-white font-bold text-xs"
+                  className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-xs cursor-pointer"
                 >
                   Assinar Agora
                 </button>

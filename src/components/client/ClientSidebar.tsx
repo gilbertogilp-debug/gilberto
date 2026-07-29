@@ -19,11 +19,12 @@ export const ClientSidebar: React.FC = () => {
   } = useApp();
 
   const menuItems = [
-    { id: 'dashboard' as ClientTab, label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'presentation' as ClientTab, label: 'Apresentação de Artes', icon: Sparkles, badge: 'Novo' },
+    { id: 'dashboard' as ClientTab, label: 'Logística da Conta', icon: LayoutDashboard },
     { id: 'categories' as ClientTab, label: 'Categorias', icon: Folder },
     { id: 'favorites' as ClientTab, label: 'Favoritos', icon: Heart },
     { id: 'downloads' as ClientTab, label: 'Downloads', icon: Download },
-    { id: 'profile' as ClientTab, label: 'Meu Perfil', icon: User },
+    { id: 'profile' as ClientTab, label: 'Meu Perfil & Foto', icon: User },
     { id: 'affiliates' as ClientTab, label: 'Afiliados', icon: Share2, badge: '30%' },
     { id: 'support' as ClientTab, label: 'Suporte VIP', icon: HelpCircle }
   ];
@@ -40,7 +41,7 @@ export const ClientSidebar: React.FC = () => {
             <Sparkles className="w-4 h-4 text-white" />
           </div>
           <div>
-            <span className="text-sm font-black text-white">Impulsio</span>
+            <span className="text-sm font-black text-white">Impulsion</span>
             <span className="text-[10px] block font-bold text-blue-400 -mt-1 uppercase">Área do Cliente</span>
           </div>
         </div>
@@ -51,9 +52,15 @@ export const ClientSidebar: React.FC = () => {
           </span>
           <button
             onClick={() => setClientTab('profile')}
-            className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 text-white font-bold flex items-center justify-center text-xs shadow-md"
+            className="w-8 h-8 rounded-full overflow-hidden border border-blue-400/40 shadow-md flex items-center justify-center cursor-pointer"
           >
-            {currentUser?.name?.charAt(0) || 'U'}
+            {currentUser?.avatarUrl ? (
+              <img src={currentUser.avatarUrl} alt={currentUser.name} className="w-full h-full object-cover" />
+            ) : (
+              <span className="w-full h-full bg-gradient-to-tr from-blue-500 to-indigo-600 text-white font-bold flex items-center justify-center text-xs">
+                {currentUser?.name?.charAt(0) || 'U'}
+              </span>
+            )}
           </button>
         </div>
       </div>
@@ -71,7 +78,7 @@ export const ClientSidebar: React.FC = () => {
           </div>
           <div>
             <span className="text-base font-extrabold text-slate-900 dark:text-white">
-              Impulsio <span className="text-blue-600 dark:text-blue-400">Templates</span>
+              Impulsion <span className="text-blue-600 dark:text-blue-400">Templates</span>
             </span>
             <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider -mt-1">
               Área do Cliente

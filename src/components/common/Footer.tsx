@@ -3,7 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { Sparkles, ShieldCheck, Heart, Instagram, Youtube, Lock } from 'lucide-react';
 
 export const Footer: React.FC = () => {
-  const { categories, setSelectedCategory, setViewMode, switchRole } = useApp();
+  const { categories, setSelectedCategory, setViewMode, switchRole, isLoggedIn, setClientTab } = useApp();
 
   return (
     <footer className="bg-slate-950 text-slate-300 border-t border-slate-800/80 pt-16 pb-12 transition-colors">
@@ -17,7 +17,7 @@ export const Footer: React.FC = () => {
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-extrabold text-white tracking-tight">
-                Impulsio <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Templates</span>
+                Impulsion <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Templates</span>
               </span>
             </div>
 
@@ -87,9 +87,16 @@ export const Footer: React.FC = () => {
                   <button
                     onClick={() => {
                       setSelectedCategory(cat.id);
-                      setViewMode('client');
+                      if (isLoggedIn) {
+                        setViewMode('client');
+                        setClientTab('categories');
+                      } else {
+                        setViewMode('home');
+                        const el = document.getElementById('recentes');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                      }
                     }}
-                    className="hover:text-purple-400 transition-colors text-left"
+                    className="hover:text-purple-400 transition-colors text-left cursor-pointer"
                   >
                     {cat.name}
                   </button>
@@ -115,7 +122,7 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-          <p>© {new Date().getFullYear()} Impulsio Templates. Todos os direitos reservados.</p>
+          <p>© {new Date().getFullYear()} Impulsion Templates. Todos os direitos reservados.</p>
           <p className="flex items-center gap-1">
             Feito com <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" /> para criadores e empreendedores.
           </p>

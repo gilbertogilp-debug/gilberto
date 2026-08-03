@@ -43,16 +43,20 @@ export const DemoModal: React.FC = () => {
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                    Demonstração Interativa do Catálogo
+                    Área de Teste de Demonstração (3 Artes)
                   </h2>
                   {!isLoggedIn && (
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30">
-                      Demonstração: {demoDownloadsCount}/3 Artes
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black border ${
+                      demoDownloadsCount >= 3
+                        ? 'bg-rose-500/20 text-rose-600 dark:text-rose-300 border-rose-500/30'
+                        : 'bg-amber-500/20 text-amber-600 dark:text-amber-300 border-amber-500/30'
+                    }`}>
+                      {demoDownloadsCount >= 3 ? 'Limite Atingido: 3/3 Artes' : `Teste: ${demoDownloadsCount}/3 Artes Usadas`}
                     </span>
                   )}
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Experimente como funciona a busca e o teste de edição de até 3 artes no Canva.
+                  Como visitante, você pode testar a edição no Canva para até 3 artes antes de assinar.
                 </p>
               </div>
             </div>
@@ -66,6 +70,32 @@ export const DemoModal: React.FC = () => {
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Demo Notice Banner for visitors */}
+        {!isLoggedIn && (
+          <div className="mt-4 p-3 rounded-2xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-200">
+              <Sparkles className="w-4 h-4 text-purple-500 flex-shrink-0" />
+              <span>
+                {demoDownloadsCount >= 3
+                  ? 'Você concluiu os 3 testes de demonstração. Escolha um plano para ter acesso ilimitado a +1.480 artes!'
+                  : `Você tem ${3 - demoDownloadsCount} teste(s) de edição no Canva restante(s). Clique em qualquer arte abaixo para testar!`
+                }
+              </span>
+            </div>
+            {demoDownloadsCount >= 3 && (
+              <button
+                onClick={() => {
+                  setIsDemoModalOpen(false);
+                  setCheckoutPlan('Anual');
+                }}
+                className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex-shrink-0 cursor-pointer"
+              >
+                Assinar Agora
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Category / Format Filters */}
         <div className="my-4 flex items-center gap-2 overflow-x-auto pb-1">

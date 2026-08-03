@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
+import { DEFAULT_PLANS } from '../../data/mockData';
 import {
   X, Check, ShieldCheck, CreditCard, QrCode, Lock, Sparkles, Tag,
   ArrowRight, Copy, CheckCircle2, User, Mail, Key, Phone, RefreshCw,
@@ -66,7 +67,8 @@ export const CheckoutModal: React.FC = () => {
 
   if (!checkoutPlan) return null;
 
-  const currentPlanObj = plans.find((p) => p.id === checkoutPlan || p.name === checkoutPlan);
+  const activePlans = (plans && plans.length > 0 ? plans : DEFAULT_PLANS).filter((p) => p.active !== false);
+  const currentPlanObj = activePlans.find((p) => p.id === checkoutPlan || p.name === checkoutPlan) || activePlans[0];
   const planNameDisplay = currentPlanObj ? currentPlanObj.name : checkoutPlan;
   const basePrice = currentPlanObj ? currentPlanObj.price : 29.90;
   const finalPrice = discountPercent > 0 ? basePrice * (1 - discountPercent / 100) : basePrice;
@@ -500,12 +502,74 @@ export const CheckoutModal: React.FC = () => {
             </div>
 
             {/* Account Registration Form Inputs */}
-            <div className="p-4 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-500/20 space-y-3">
-              <div className="flex items-center gap-2">
-                <Key className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span className="text-xs font-extrabold text-blue-900 dark:text-blue-200 uppercase tracking-wider">
-                  Criar Cadastro e Dados de Acesso
+            <div className="p-4 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-500/20 space-y-4">
+              <div className="flex items-center justify-between border-b border-blue-500/15 pb-2">
+                <div className="flex items-center gap-2">
+                  <Key className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  <span className="text-xs font-extrabold text-blue-900 dark:text-blue-200 uppercase tracking-wider">
+                    Criar Cadastro e Dados de Acesso
+                  </span>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-300">
+                  Liberação Automática
                 </span>
+              </div>
+
+              {/* Plan Options Selector in Registration Form */}
+              <div className="space-y-1.5">
+                <label className="block text-[11px] font-extrabold text-slate-700 dark:text-slate-200 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Selecione seu Plano Desejado:</span>
+                  </span>
+                  <span className="text-[10px] text-blue-600 dark:text-blue-400 font-extrabold uppercase">
+                    Acesso Ilimitado ao Canva
+                  </span>
+                </label>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {activePlans.map((plan) => {
+                    const isSelected = checkoutPlan === plan.id || checkoutPlan === plan.name;
+                    return (
+                      <button
+                        key={plan.id}
+                        type="button"
+                        onClick={() => setCheckoutPlan(plan.id)}
+                        className={`relative p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                          isSelected
+                            ? 'bg-white dark:bg-slate-800 border-blue-500 text-slate-900 dark:text-white shadow-md ring-2 ring-blue-500/30'
+                            : 'bg-white/70 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/70 text-slate-600 dark:text-slate-300 hover:border-blue-300'
+                        }`}
+                      >
+                        {plan.popular && (
+                          <span className="absolute -top-2 right-2 px-1.5 py-0.5 rounded-full text-[8px] font-black bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-sm">
+                            RECOMENDADO
+                          </span>
+                        )}
+                        <div>
+                          <div className="flex items-center justify-between mb-0.5">
+                            <span className="font-extrabold text-[11px] text-slate-900 dark:text-white truncate">
+                              {plan.name || plan.id}
+                            </span>
+                            <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
+                              isSelected ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300 dark:border-slate-600'
+                            }`}>
+                              {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                            </div>
+                          </div>
+                          <div className="flex items-baseline gap-0.5">
+                            <span className="text-xs font-black text-slate-900 dark:text-white">
+                              R$ {plan.price.toFixed(2).replace('.', ',')}
+                            </span>
+                            <span className="text-[9px] text-slate-500 dark:text-slate-400">
+                              {plan.period || (plan.id === 'Vitalício' ? '' : '/mês')}
+                            </span>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

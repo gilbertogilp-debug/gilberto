@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Template, TemplateFormat } from '../../types';
-import { X, Plus, Image, Link, Sparkles, Layers, Tag } from 'lucide-react';
+import { X, Plus, Image, Link, Sparkles, Layers, Tag, Upload, CheckCircle2 } from 'lucide-react';
+import { extractMediaUrl, readFileAsDataUrl } from '../../utils/mediaHelper';
 
 interface Props {
   isOpen: boolean;
@@ -42,9 +43,23 @@ export const AdminTemplateModal: React.FC<Props> = ({ isOpen, onClose, editingTe
 
   if (!isOpen) return null;
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const dataUrl = await readFileAsDataUrl(file);
+        setImageUrl(dataUrl);
+      } catch (err) {
+        console.error('Erro ao ler arquivo de imagem:', err);
+      }
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const tags = tagsInput.split(',').map((t) => t.trim()).filter(Boolean);
+    const cleanImageUrl = extractMediaUrl(imageUrl) || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80';
+    const cleanCanvaUrl = extractMediaUrl(canvaUrl) || 'https://share.google/wNVaBMf3Y0tsleg7f';
 
     if (editingTemplate) {
       updateTemplate({
@@ -55,8 +70,8 @@ export const AdminTemplateModal: React.FC<Props> = ({ isOpen, onClose, editingTe
         format,
         tags,
         description,
-        imageUrl,
-        canvaUrl
+        imageUrl: cleanImageUrl,
+        canvaUrl: cleanCanvaUrl
       });
     } else {
       addTemplate({
@@ -66,8 +81,8 @@ export const AdminTemplateModal: React.FC<Props> = ({ isOpen, onClose, editingTe
         format,
         tags,
         description,
-        imageUrl,
-        canvaUrl
+        imageUrl: cleanImageUrl,
+        canvaUrl: cleanCanvaUrl
       });
     }
 
@@ -144,30 +159,69 @@ export const AdminTemplateModal: React.FC<Props> = ({ isOpen, onClose, editingTe
 
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Link do Canva (Link do Modelo/Design)
+              Link do Canva (Link do Modelo/Design ou Código HTML)
             </label>
             <input
-              type="url"
+              type="text"
               required
-              placeholder="https://www.canva.com/design/..."
+              placeholder="https://www.canva.com/design/... ou código HTML/iframe"
               value={canvaUrl}
               onChange={(e) => setCanvaUrl(e.target.value)}
               className="w-full p-3 rounded-xl text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              URL da Imagem de Capa (Preview)
+          <div className="space-y-2">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+              Imagem de Capa (URL, Código HTML ou Upload)
             </label>
-            <input
-              type="url"
-              required
-              placeholder="https://images.unsplash.com/..."
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full p-3 rounded-xl text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
-            />
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input
+                type="text"
+                required
+                placeholder="Cole a URL, tag HTML <img src='...'> ou faça upload"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                className="flex-1 p-3 rounded-xl text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+              />
+
+              <label className="px-4 py-3 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-300 border border-purple-500/30 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 shrink-0">
+                <Upload className="w-4 h-4" />
+                <span>Escolher do Computador</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            {/* Live Image Preview */}
+            {imageUrl && (
+              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex items-center gap-4">
+                <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0 bg-slate-200 dark:bg-slate-800">
+                  <img
+                    src={extractMediaUrl(imageUrl)}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80';
+                    }}
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-0.5">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Imagem Reconhecida</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                    {extractMediaUrl(imageUrl)}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           <div>

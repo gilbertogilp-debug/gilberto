@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { X, ExternalLink, Heart, Download, Tag, Sparkles, CheckCircle2, ShieldCheck, Layers, Lock, CreditCard, ArrowLeft } from 'lucide-react';
+import { extractMediaUrl } from '../../utils/mediaHelper';
 
 export const CanvaModal: React.FC = () => {
   const { previewTemplate, setPreviewTemplate, isFavorite, toggleFavorite, recordDownload, isLoggedIn, setCheckoutPlan, showToast, demoDownloadsCount, viewMode, setViewMode } = useApp();
@@ -10,7 +11,8 @@ export const CanvaModal: React.FC = () => {
   const handleEditOnCanva = () => {
     const success = recordDownload(previewTemplate);
     if (success) {
-      window.open(previewTemplate.canvaUrl, '_blank', 'noopener,noreferrer');
+      const cleanUrl = extractMediaUrl(previewTemplate.canvaUrl) || 'https://canva.com';
+      window.open(cleanUrl, '_blank', 'noopener,noreferrer');
       setPreviewTemplate(null);
     }
   };
@@ -54,9 +56,12 @@ export const CanvaModal: React.FC = () => {
           <div className="relative bg-slate-950 flex items-center justify-center p-6 min-h-[300px] md:min-h-[420px] overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent z-10 pointer-events-none" />
             <img
-              src={previewTemplate.imageUrl}
+              src={extractMediaUrl(previewTemplate.imageUrl)}
               alt={previewTemplate.title}
               className="max-h-[360px] w-auto object-contain rounded-2xl shadow-2xl transform group-hover:scale-105 transition-transform duration-500"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80';
+              }}
             />
             
             {/* Format Tag */}
@@ -124,22 +129,7 @@ export const CanvaModal: React.FC = () => {
               </div>
 
               {/* Access Condition Box */}
-              {!isLoggedIn ? (
-                <div className="mt-6 p-4 rounded-2xl bg-blue-500/10 border border-blue-500/30 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs font-extrabold text-blue-700 dark:text-blue-300">
-                      <Sparkles className="w-4 h-4 text-blue-500" />
-                      <span>Modelo Editável no Canva</span>
-                    </div>
-                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-600 dark:text-blue-300">
-                      Link Direto
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-300">
-                    Ao clicar no botão abaixo, a página editável deste modelo será aberta em uma nova aba no Canva para você personalizar.
-                  </p>
-                </div>
-              ) : (
+              {isLoggedIn ? (
                 <div className="mt-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-2">
                   <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-300">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500" />
@@ -147,6 +137,36 @@ export const CanvaModal: React.FC = () => {
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-300">
                     Clique no botão abaixo para abrir a cópia editável desta arte diretamente na sua conta do Canva.
+                  </p>
+                </div>
+              ) : demoDownloadsCount < 3 ? (
+                <div className="mt-6 p-4 rounded-2xl bg-blue-500/10 border border-blue-500/30 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-extrabold text-blue-700 dark:text-blue-300">
+                      <Sparkles className="w-4 h-4 text-blue-500" />
+                      <span>Área de Teste de Demonstração</span>
+                    </div>
+                    <span className="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30">
+                      {demoDownloadsCount}/3 Artes Usadas
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">
+                    Você pode testar a edição direta no Canva para até 3 artes gratuitamente antes de criar uma conta ou assinar.
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-extrabold text-amber-700 dark:text-amber-300">
+                      <Lock className="w-4 h-4 text-amber-500" />
+                      <span>Limite de Demonstração Atingido (3/3)</span>
+                    </div>
+                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-700 dark:text-amber-300">
+                      Finalizado
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">
+                    Você já utilizou os 3 testes de demonstração. Escolha um plano para liberar acesso ilimitado a todas as +1.480 artes!
                   </p>
                 </div>
               )}
@@ -158,9 +178,23 @@ export const CanvaModal: React.FC = () => {
                 onClick={handleEditOnCanva}
                 className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-base shadow-xl shadow-purple-500/25 flex items-center justify-center gap-3 transform hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
               >
-                <Sparkles className="w-5 h-5 text-yellow-300 animate-pulse" />
-                <span>Abrir e Editar no Canva</span>
-                <ExternalLink className="w-5 h-5 text-white/80" />
+                {isLoggedIn || demoDownloadsCount < 3 ? (
+                  <>
+                    <Sparkles className="w-5 h-5 text-yellow-300 animate-pulse" />
+                    <span>
+                      {isLoggedIn
+                        ? 'Abrir e Editar no Canva'
+                        : `Testar no Canva (Arte ${demoDownloadsCount + 1} de 3)`}
+                    </span>
+                    <ExternalLink className="w-5 h-5 text-white/80" />
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="w-5 h-5 text-yellow-300" />
+                    <span>Liberar Acesso Completo / Assinar</span>
+                    <ExternalLink className="w-5 h-5 text-white/80" />
+                  </>
+                )}
               </button>
 
               {/* Secondary Return Button */}

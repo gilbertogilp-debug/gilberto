@@ -58,8 +58,8 @@ export const SideToolbarDrawer: React.FC<{
 
   return (
     <>
-      {/* FLOATING SIDE TAB TRIGGER BUTTON (Pinned to left edge - Visible for Admin) */}
-      {(currentUser?.role === 'admin' || viewMode === 'admin') && (
+      {/* FLOATING SIDE TAB TRIGGER BUTTON (Pinned to left edge - Visible ONLY for Admin) */}
+      {currentUser?.role === 'admin' && (
         <div className="fixed left-0 top-1/2 -translate-y-1/2 z-40 flex items-center">
           <button
             onClick={() => setIsSideToolbarOpen(!isSideToolbarOpen)}
@@ -123,7 +123,7 @@ export const SideToolbarDrawer: React.FC<{
         <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar">
           
           {/* CATEGORY 1: MOBILE ADMIN EDITING SECTION (ADMIN ONLY) */}
-          {(currentUser?.role === 'admin' || viewMode === 'admin') && (
+          {currentUser?.role === 'admin' && (
             <div className="p-4 rounded-2xl bg-gradient-to-b from-purple-950/50 to-slate-900 border border-purple-500/30 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-purple-300 font-black text-xs uppercase tracking-wider">

@@ -26,6 +26,7 @@ import { SideToolbarDrawer } from './components/common/SideToolbarDrawer';
 
 // Client Area Components
 import { ClientSidebar } from './components/client/ClientSidebar';
+import { ClientTopBar } from './components/client/ClientTopBar';
 import { ClientPresentation } from './components/client/ClientPresentation';
 import { ClientDashboard } from './components/client/ClientDashboard';
 import { ClientCategories } from './components/client/ClientCategories';
@@ -85,6 +86,7 @@ const MainLayout: React.FC = () => {
           <div className="flex flex-col md:flex-row min-h-screen">
             <ClientSidebar />
             <main className="flex-1 p-4 md:p-10 pb-28 md:pb-10 overflow-y-auto max-w-7xl mx-auto w-full">
+              <ClientTopBar />
               {clientTab === 'presentation' && <ClientPresentation />}
               {clientTab === 'dashboard' && <ClientDashboard />}
               {clientTab === 'categories' && <ClientCategories />}

@@ -390,8 +390,8 @@ export const MOCK_USER: User = {
 
 export const MOCK_ADMIN: User = {
   id: 'usr-admin',
-  name: 'Administrador Impulsion',
-  email: 'admin@impulsion.com.br',
+  name: 'Gilberto Gil (Admin)',
+  email: 'gilbertogilp@gmail.com',
   avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
   plan: 'Vitalício',
   role: 'admin',

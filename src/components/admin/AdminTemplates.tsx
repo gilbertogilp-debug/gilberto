@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { Template } from '../../types';
 import { AdminTemplateModal } from './AdminTemplateModal';
 import { Plus, Search, Edit2, Trash2, ExternalLink, Download, Layers } from 'lucide-react';
+import { extractMediaUrl } from '../../utils/mediaHelper';
 
 export const AdminTemplates: React.FC = () => {
   const { templates, deleteTemplate } = useApp();
@@ -78,9 +79,12 @@ export const AdminTemplates: React.FC = () => {
                 <tr key={tpl.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
                   <td className="py-3 px-4">
                     <img
-                      src={tpl.imageUrl}
+                      src={extractMediaUrl(tpl.imageUrl)}
                       alt={tpl.title}
-                      className="w-10 h-10 rounded-lg object-cover border border-slate-200 dark:border-slate-700"
+                      className="w-10 h-10 rounded-lg object-cover border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80';
+                      }}
                     />
                   </td>
                   <td className="py-3 px-4 font-bold text-slate-900 dark:text-white">

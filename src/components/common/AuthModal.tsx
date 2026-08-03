@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { X, Mail, Key, User, Phone, Sparkles, ArrowRight, ShieldAlert, CheckCircle2, Send, RefreshCw, AlertCircle, FileText } from 'lucide-react';
+import { DEFAULT_PLANS } from '../../data/mockData';
+import { X, Mail, Key, User, Phone, Sparkles, ArrowRight, ShieldAlert, CheckCircle2, Send, RefreshCw, AlertCircle, FileText, Check } from 'lucide-react';
 
 export const AuthModal: React.FC = () => {
-  const { isAuthModalOpen, setIsAuthModalOpen, login, registerCustomerAccess, setCheckoutPlan, subscribers, showToast } = useApp();
+  const { isAuthModalOpen, setIsAuthModalOpen, login, registerCustomerAccess, setCheckoutPlan, subscribers, showToast, plans } = useApp();
   const [activeTab, setActiveTab] = useState<'login' | 'register' | 'resend'>('login');
   const [email, setEmail] = useState('cliente@impulsion.com.br');
   const [password, setPassword] = useState('123456');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('(11) 99888-7766');
+  const [selectedPlan, setSelectedPlan] = useState<string>('Anual');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [sentEmailData, setSentEmailData] = useState<{
     toName: string;
@@ -20,6 +22,8 @@ export const AuthModal: React.FC = () => {
 
   if (!isAuthModalOpen) return null;
 
+  const activePlans = (plans && plans.length > 0 ? plans : DEFAULT_PLANS).filter(p => p.active !== false);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -29,17 +33,18 @@ export const AuthModal: React.FC = () => {
         setErrorMessage('Por favor, informe seu nome e e-mail para criar o acesso.');
         return;
       }
+      const chosenPlan = selectedPlan || 'Anual';
       // Prepare registration confirmation email display
       setSentEmailData({
         toName: name.trim() || 'Cliente VIP',
         toEmail: email.trim().toLowerCase(),
         key: password || '123456',
-        plan: 'Mensal',
+        plan: chosenPlan,
         date: new Date().toLocaleDateString('pt-BR')
       });
       // Register customer access in context
-      registerCustomerAccess(name || 'Cliente VIP', email, phone, password, 'Mensal');
-      showToast(`🎉 Cadastro efetuado com sucesso! E-mail de confirmação enviado para ${email}`);
+      registerCustomerAccess(name || 'Cliente VIP', email, phone, password, chosenPlan);
+      showToast(`🎉 Cadastro efetuado com sucesso no Plano ${chosenPlan}! E-mail de confirmação enviado para ${email}`);
     } else if (activeTab === 'login') {
       const res = login(email, 'user', password);
       if (!res.success) {
@@ -96,7 +101,7 @@ export const AuthModal: React.FC = () => {
 
   const handleQuickDemoAdmin = () => {
     setErrorMessage(null);
-    const res = login('admin@impulsion.com.br', 'admin', 'admin123');
+    const res = login('gilbertogilp@gmail.com', 'admin', 'admin123');
     if (res.success) {
       setIsAuthModalOpen(false);
     }
@@ -269,18 +274,19 @@ export const AuthModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleQuickClientDemo}
-                  className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] flex items-center gap-1 cursor-pointer transition-all shadow"
+                  className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] flex items-center gap-1.5 cursor-pointer transition-all shadow"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Cliente (Plano Ativo)</span>
+                  <span>Cliente Demonstração</span>
                 </button>
+
                 <button
                   type="button"
                   onClick={handleQuickDemoAdmin}
-                  className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-[11px] flex items-center gap-1 cursor-pointer transition-all shadow"
+                  className="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-[11px] flex items-center gap-1.5 cursor-pointer transition-all shadow"
                 >
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Admin (Painel)</span>
+                  <ShieldAlert className="w-3.5 h-3.5" />
+                  <span>Entrar como Administrador</span>
                 </button>
               </div>
             </div>
@@ -315,6 +321,74 @@ export const AuthModal: React.FC = () => {
                         onChange={(e) => setPhone(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
                       />
+                    </div>
+                  </div>
+
+                  {/* Plan Options Selector */}
+                  <div className="space-y-1.5 pt-1">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                      <span className="flex items-center gap-1">
+                        <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                        <span>Escolha seu Plano Desejado</span>
+                      </span>
+                      <span className="text-[10px] text-purple-600 dark:text-purple-400 font-extrabold uppercase">
+                        Liberação Instantânea
+                      </span>
+                    </label>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      {activePlans.map((plan) => {
+                        const isSelected = selectedPlan === plan.id;
+                        return (
+                          <button
+                            key={plan.id}
+                            type="button"
+                            onClick={() => setSelectedPlan(plan.id)}
+                            className={`relative p-2.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                              isSelected
+                                ? 'bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-indigo-500/10 border-purple-500 text-slate-900 dark:text-white shadow-md ring-2 ring-purple-500/30'
+                                : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/70 text-slate-600 dark:text-slate-300 hover:border-purple-300 dark:hover:border-purple-700'
+                            }`}
+                          >
+                            {plan.popular && (
+                              <span className="absolute -top-2 right-1.5 px-1.5 py-0.5 rounded-full text-[8px] font-black bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-sm">
+                                POPULAR
+                              </span>
+                            )}
+                            {plan.id === 'Vitalício' && (
+                              <span className="absolute -top-2 right-1.5 px-1.5 py-0.5 rounded-full text-[8px] font-black bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm">
+                                1x ÚNICA
+                              </span>
+                            )}
+
+                            <div>
+                              <div className="flex items-center justify-between mb-0.5">
+                                <span className="font-extrabold text-[11px] text-slate-900 dark:text-white truncate">
+                                  {plan.id}
+                                </span>
+                                <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
+                                  isSelected ? 'border-purple-600 bg-purple-600 text-white' : 'border-slate-300 dark:border-slate-600'
+                                }`}>
+                                  {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                                </div>
+                              </div>
+
+                              <div className="flex items-baseline gap-0.5">
+                                <span className="text-xs font-black text-slate-900 dark:text-white">
+                                  R$ {plan.price.toFixed(2).replace('.', ',')}
+                                </span>
+                                <span className="text-[9px] text-slate-500 dark:text-slate-400">
+                                  {plan.id === 'Vitalício' ? '' : '/mês'}
+                                </span>
+                              </div>
+                            </div>
+
+                            <p className="text-[9px] text-slate-500 dark:text-slate-400 line-clamp-1 mt-1 leading-tight">
+                              {plan.description}
+                            </p>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </>

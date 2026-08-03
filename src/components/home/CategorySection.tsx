@@ -43,9 +43,15 @@ export const CategorySection: React.FC = () => {
               onClick={() => handleCategoryClick(cat.id)}
               className="group p-5 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 shadow-sm hover:shadow-xl hover:border-blue-500/40 transition-all duration-300 cursor-pointer flex flex-col items-center text-center justify-between"
             >
-              <div className={`p-3.5 rounded-2xl border mb-3 transition-transform group-hover:scale-110 ${cat.color}`}>
-                {getCategoryIcon(cat.iconName, 'w-6 h-6')}
-              </div>
+              {cat.imageUrl ? (
+                <div className="w-14 h-14 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 mb-3 transition-transform group-hover:scale-110 shrink-0 bg-slate-100 dark:bg-slate-800">
+                  <img src={cat.imageUrl} alt={cat.name} className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <div className={`p-3.5 rounded-2xl border mb-3 transition-transform group-hover:scale-110 ${cat.color}`}>
+                  {getCategoryIcon(cat.iconName, 'w-6 h-6')}
+                </div>
+              )}
 
               <div>
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">

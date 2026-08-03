@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   Template, Category, User, ViewMode, ClientTab, AdminTab,
-  Coupon, Announcement, Subscriber, PaymentTransaction, AffiliateInfo, TemplateFormat, PixConfig, PlanConfig
+  Coupon, Announcement, Subscriber, PaymentTransaction, AffiliateInfo, TemplateFormat, PixConfig, PlanConfig, NavHistoryItem
 } from '../types';
 import {
   INITIAL_CATEGORIES, INITIAL_TEMPLATES, MOCK_USER, MOCK_ADMIN,
@@ -18,6 +18,12 @@ interface AppContextType {
   setAdminTab: (tab: AdminTab) => void;
   isDarkMode: boolean;
   toggleDarkMode: () => void;
+  
+  // Navigation History & Back Handler
+  navHistory: NavHistoryItem[];
+  goBack: () => void;
+  canGoBack: boolean;
+  previousPageName: string;
 
   // User State
   currentUser: User | null;
@@ -125,10 +131,102 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return saved ? saved === 'dark' : true; // Default dark/modern aesthetic
   });
 
-  // Navigation
-  const [viewMode, setViewMode] = useState<ViewMode>('home');
-  const [clientTab, setClientTab] = useState<ClientTab>('dashboard');
-  const [adminTab, setAdminTab] = useState<AdminTab>('dashboard');
+  // Navigation with History Tracking
+  const [viewMode, setViewModeState] = useState<ViewMode>('home');
+  const [clientTab, setClientTabState] = useState<ClientTab>('dashboard');
+  const [adminTab, setAdminTabState] = useState<AdminTab>('dashboard');
+
+  const [navHistory, setNavHistory] = useState<NavHistoryItem[]>([
+    { viewMode: 'home', label: 'Início' }
+  ]);
+
+  const clientTabLabels: Record<ClientTab, string> = {
+    presentation: 'Apresentação de Artes',
+    dashboard: 'Logística da Conta',
+    categories: 'Categorias',
+    favorites: 'Favoritos',
+    downloads: 'Downloads',
+    profile: 'Meu Perfil',
+    affiliates: 'Afiliados',
+    support: 'Suporte VIP'
+  };
+
+  const setViewMode = (mode: ViewMode) => {
+    const label = mode === 'home' ? 'Início' : mode === 'client' ? (clientTabLabels[clientTab] || 'Área do Cliente') : 'Painel Admin';
+    setNavHistory((prev) => {
+      const last = prev[prev.length - 1];
+      if (last && last.viewMode === mode && (!last.clientTab || last.clientTab === clientTab)) {
+        return prev;
+      }
+      return [...prev, { viewMode: mode, clientTab: mode === 'client' ? clientTab : undefined, label }];
+    });
+    setViewModeState(mode);
+  };
+
+  const setClientTab = (tab: ClientTab) => {
+    const label = clientTabLabels[tab] || 'Área do Cliente';
+    setNavHistory((prev) => {
+      const last = prev[prev.length - 1];
+      if (last && last.viewMode === 'client' && last.clientTab === tab) {
+        return prev;
+      }
+      return [...prev, { viewMode: 'client', clientTab: tab, label }];
+    });
+    setClientTabState(tab);
+    if (viewMode !== 'client') {
+      setViewModeState('client');
+    }
+  };
+
+  const setAdminTab = (tab: AdminTab) => {
+    setNavHistory((prev) => {
+      const last = prev[prev.length - 1];
+      if (last && last.viewMode === 'admin' && last.adminTab === tab) {
+        return prev;
+      }
+      return [...prev, { viewMode: 'admin', adminTab: tab, label: `Admin: ${tab}` }];
+    });
+    setAdminTabState(tab);
+    if (viewMode !== 'admin') {
+      setViewModeState('admin');
+    }
+  };
+
+  const goBack = () => {
+    if (navHistory.length > 1) {
+      const newHistory = [...navHistory];
+      newHistory.pop(); // Pop current location
+      const prev = newHistory[newHistory.length - 1];
+      setNavHistory(newHistory);
+
+      setViewModeState(prev.viewMode);
+      if (prev.clientTab) {
+        setClientTabState(prev.clientTab);
+      }
+      if (prev.adminTab) {
+        setAdminTabState(prev.adminTab);
+      }
+    } else {
+      // Fallback behavior
+      if (viewMode === 'client') {
+        if (clientTab !== 'dashboard') {
+          setClientTabState('dashboard');
+        } else {
+          setViewModeState('home');
+        }
+      } else if (viewMode === 'admin') {
+        setViewModeState('home');
+      }
+    }
+  };
+
+  const canGoBack = navHistory.length > 1 || (viewMode === 'client' && clientTab !== 'dashboard') || viewMode === 'admin';
+
+  const previousPageName = navHistory.length > 1
+    ? navHistory[navHistory.length - 2].label
+    : viewMode === 'client'
+      ? (clientTab !== 'dashboard' ? 'Logística da Conta' : 'Início')
+      : 'Início';
 
   // User state
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
@@ -304,12 +402,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
 
   const enterAdminMode = (tabTarget?: AdminTab) => {
-    setCurrentUser(MOCK_ADMIN);
-    setViewMode('admin');
-    if (tabTarget) {
-      setAdminTab(tabTarget);
+    if (currentUser?.role === 'admin') {
+      setViewMode('admin');
+      if (tabTarget) {
+        setAdminTab(tabTarget);
+      }
+      showToast('Modo Admin Ativado! 📱');
+    } else {
+      showToast('🔒 Acesso exclusivo do Administrador.');
     }
-    showToast('Modo Admin Ativado! Edite o site diretamente no celular 📱');
   };
 
   // Toast
@@ -373,11 +474,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return { success: false, message: msg };
     }
 
-    // Admin Access
-    if (role === 'admin' || cleanEmail === 'admin@impulsion.com.br') {
-      setCurrentUser(MOCK_ADMIN);
+    // Admin Access Check
+    const isAdminEmail = cleanEmail === 'gilbertogilp@gmail.com' || cleanEmail === 'admin@impulsion.com.br';
+    if (role === 'admin' || isAdminEmail) {
+      const adminUser: User = {
+        ...MOCK_ADMIN,
+        email: cleanEmail === 'gilbertogilp@gmail.com' ? 'gilbertogilp@gmail.com' : 'admin@impulsion.com.br',
+        name: cleanEmail === 'gilbertogilp@gmail.com' ? 'Gilberto Gil' : 'Administrador Impulsion',
+      };
+      setCurrentUser(adminUser);
       setViewMode('admin');
-      showToast('Bem-vindo de volta, Administrador!');
+      showToast(`Bem-vindo de volta, ${adminUser.name} (Administrador)!`);
       setIsAuthModalOpen(false);
       return { success: true, message: 'Sucesso' };
     }
@@ -554,14 +661,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const switchRole = () => {
     if (currentUser?.role === 'admin') {
-      setCurrentUser(MOCK_USER);
-      setViewMode('client');
-      setClientTab('presentation');
-      showToast('Modo de exibição alterado para Cliente.');
+      if (viewMode === 'admin') {
+        setViewMode('client');
+        setClientTab('presentation');
+        showToast('Modo de exibição alterado para Área do Cliente.');
+      } else {
+        setViewMode('admin');
+        showToast('Modo de exibição alterado para Painel Administrativo.');
+      }
     } else {
-      setCurrentUser(MOCK_ADMIN);
-      setViewMode('admin');
-      showToast('Modo de exibição alterado para Painel Administrativo.');
+      showToast('🔒 Acesso exclusivo do Administrador.');
     }
   };
 
@@ -614,7 +723,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return true;
     }
 
-    // Non-subscriber visitor / demo user logic (allows seamless Canva testing)
+    // Non-subscriber visitor / demo user logic (allows up to 3 test edits in Canva)
+    if (demoDownloadsCount >= 3) {
+      showToast('⚠️ Você atingiu o limite de 3 artes no teste de demonstração! Escolha um plano para acesso ilimitado.');
+      setCheckoutPlan('Anual');
+      return false;
+    }
+
     const nextCount = demoDownloadsCount + 1;
     setDemoDownloadsCount(nextCount);
     localStorage.setItem('impulsion_demo_downloads_count', nextCount.toString());
@@ -623,7 +738,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       prev.map((t) => (t.id === template.id ? { ...t, downloadsCount: t.downloadsCount + 1 } : t))
     );
 
-    showToast(`🎨 Redirecionando para abrir "${template.title}" no Canva...`);
+    showToast(`🎨 Teste de Demonstração (${nextCount}/3 artes): Redirecionando para o Canva...`);
     return true;
   };
 
@@ -782,6 +897,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setAdminTab,
         isDarkMode,
         toggleDarkMode,
+        navHistory,
+        goBack,
+        canGoBack,
+        previousPageName,
         currentUser,
         isLoggedIn: !!currentUser,
         demoDownloadsCount,

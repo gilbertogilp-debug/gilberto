@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   Sparkles, Search, Sun, Moon, Bell, User, LayoutDashboard,
-  ShieldAlert, Menu, X, ArrowRight, LogOut, CheckCircle2, Smartphone, Wrench
+  ShieldAlert, Menu, X, ArrowRight, LogOut, CheckCircle2, Smartphone, Wrench, Play
 } from 'lucide-react';
 
 export const Navbar: React.FC<{
@@ -25,7 +25,8 @@ export const Navbar: React.FC<{
     setAuthModalMode,
     setCheckoutPlan,
     announcements,
-    setSelectedCategory
+    setSelectedCategory,
+    setIsDemoModalOpen
   } = useApp();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -111,8 +112,8 @@ export const Navbar: React.FC<{
             </button>
           )}
 
-          {/* Side Toolbar Drawer Trigger (Visible for Admin) */}
-          {(currentUser?.role === 'admin' || viewMode === 'admin') && (
+          {/* Side Toolbar Drawer Trigger (Visible ONLY for Admin) */}
+          {currentUser?.role === 'admin' && (
             <button
               onClick={() => setIsSideToolbarOpen(true)}
               className="px-3 py-2 rounded-xl bg-purple-600/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 hover:bg-purple-600/20 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
@@ -162,22 +163,16 @@ export const Navbar: React.FC<{
           {/* User Account / Role / Login Options */}
           {currentUser ? (
             <div className="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-800">
-              {/* Role Toggle shortcut */}
-              <button
-                onClick={switchRole}
-                className="px-3 py-2 rounded-xl text-xs font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
-                title={`Alternar para ${currentUser.role === 'admin' ? 'Área do Cliente' : 'Painel Admin'}`}
-              >
-                {currentUser.role === 'admin' ? (
-                  <>
-                    <User className="w-3.5 h-3.5" /> Modo Cliente
-                  </>
-                ) : (
-                  <>
-                    <ShieldAlert className="w-3.5 h-3.5" /> Painel Admin
-                  </>
-                )}
-              </button>
+              {/* Role Toggle shortcut (Admin Only) */}
+              {currentUser.role === 'admin' && (
+                <button
+                  onClick={switchRole}
+                  className="px-3 py-2 rounded-xl text-xs font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Alternar Modo de Exibição"
+                >
+                  <User className="w-3.5 h-3.5" /> Modo Cliente
+                </button>
+              )}
 
               {/* Go to Dashboard button with avatar */}
               <button
@@ -334,15 +329,17 @@ export const Navbar: React.FC<{
                 >
                   <LayoutDashboard className="w-4 h-4" /> Ir para Dashboard
                 </button>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    switchRole();
-                  }}
-                  className="w-full py-2.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 font-semibold text-xs border border-purple-500/20"
-                >
-                  Alternar modo Admin / Cliente
-                </button>
+                {currentUser.role === 'admin' && (
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      switchRole();
+                    }}
+                    className="w-full py-2.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 font-semibold text-xs border border-purple-500/20"
+                  >
+                    Alternar modo Admin / Cliente
+                  </button>
+                )}
               </div>
             ) : (
               <div className="flex gap-2">

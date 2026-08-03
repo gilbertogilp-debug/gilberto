@@ -3,7 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { Sparkles, ShieldCheck, Heart, Instagram, Youtube, Lock } from 'lucide-react';
 
 export const Footer: React.FC = () => {
-  const { categories, setSelectedCategory, setViewMode, switchRole, isLoggedIn, setClientTab } = useApp();
+  const { categories, setSelectedCategory, setViewMode, switchRole, isLoggedIn, setClientTab, currentUser } = useApp();
 
   return (
     <footer className="bg-slate-950 text-slate-300 border-t border-slate-800/80 pt-16 pb-12 transition-colors">
@@ -66,15 +66,17 @@ export const Footer: React.FC = () => {
                   Perguntas Frequentes
                 </a>
               </li>
-              <li className="pt-2">
-                <button
-                  onClick={() => switchRole()}
-                  className="px-3 py-1.5 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  Painel Admin
-                </button>
-              </li>
+              {currentUser?.role === 'admin' && (
+                <li className="pt-2">
+                  <button
+                    onClick={() => switchRole()}
+                    className="px-3 py-1.5 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    Painel Admin
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
 

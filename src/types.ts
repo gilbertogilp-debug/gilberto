@@ -24,6 +24,7 @@ export interface Category {
   color: string;
   description: string;
   templateCount: number;
+  imageUrl?: string;
 }
 
 export interface User {
@@ -124,3 +125,10 @@ export interface PlanConfig {
 export type ViewMode = 'home' | 'client' | 'admin' | 'auth';
 export type ClientTab = 'presentation' | 'dashboard' | 'categories' | 'favorites' | 'downloads' | 'profile' | 'support' | 'affiliates';
 export type AdminTab = 'dashboard' | 'clients' | 'templates' | 'categories' | 'subscriptions' | 'payments' | 'reports' | 'coupons' | 'announcements' | 'settings';
+
+export interface NavHistoryItem {
+  viewMode: ViewMode;
+  clientTab?: ClientTab;
+  adminTab?: AdminTab;
+  label: string;
+}

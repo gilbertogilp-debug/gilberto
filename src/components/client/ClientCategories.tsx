@@ -30,9 +30,15 @@ export const ClientCategories: React.FC = () => {
             className="group p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-blue-500/40 transition-all cursor-pointer flex flex-col justify-between space-y-4"
           >
             <div className="flex items-center justify-between">
-              <div className={`p-3.5 rounded-2xl border ${cat.color}`}>
-                {getCategoryIcon(cat.iconName, 'w-6 h-6')}
-              </div>
+              {cat.imageUrl ? (
+                <div className="w-12 h-12 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0 bg-slate-100 dark:bg-slate-800">
+                  <img src={cat.imageUrl} alt={cat.name} className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <div className={`p-3.5 rounded-2xl border ${cat.color}`}>
+                  {getCategoryIcon(cat.iconName, 'w-6 h-6')}
+                </div>
+              )}
               <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                 {cat.templateCount} artes
               </span>

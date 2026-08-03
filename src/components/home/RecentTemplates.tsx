@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Sparkles, Heart, Download, ExternalLink, Star, Layers } from 'lucide-react';
+import { extractMediaUrl } from '../../utils/mediaHelper';
 
 export const RecentTemplates: React.FC = () => {
   const { templates, setPreviewTemplate, isFavorite, toggleFavorite } = useApp();
@@ -59,9 +60,12 @@ export const RecentTemplates: React.FC = () => {
                 {/* Image & Badges Container */}
                 <div className="relative aspect-square overflow-hidden bg-slate-950">
                   <img
-                    src={tpl.imageUrl}
+                    src={extractMediaUrl(tpl.imageUrl)}
                     alt={tpl.title}
                     className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80';
+                    }}
                   />
 
                   {/* Top Badges */}
